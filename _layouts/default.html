@@ -29,6 +29,8 @@
 <!-- ... inside _layouts/default.html, before </body> ... -->
 <!-- ... inside _layouts/default.html, before </body> ... -->
 <!-- ... inside _layouts/default.html, before </body> ... -->
+{% comment %} Only include flicker script on pages OTHER than the root index {% endcomment %}
+{% unless page.url == '/' %}
 <!-- Start Flicker Script -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -277,6 +279,7 @@
 
   });
 </script>
+{% endunless %}
 <!-- End Flicker Script -->
 <!-- End Flicker Script -->
 <!-- End Flicker Script -->

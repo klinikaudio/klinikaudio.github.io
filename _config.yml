@@ -4,5 +4,5 @@ show_downloads: true
 google_analytics:
 theme: jekyll-theme-hacker
 
-#baseurl: "/site"
+baseurl: "/" #"/site"
 url: "https://klinikaudio.github.io" # Also good practice to set the production URL

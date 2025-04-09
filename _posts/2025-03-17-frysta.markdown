@@ -1,0 +1,26 @@
+---
+layout: post
+title:  "Frysta (Spectral Freezing Application)"
+date:   2025-03-17 19:34:21 +0000
+categories: modules, spectral
+author: "Benny Woo"
+tags: "spectral, wip"
+---
+
+Fystra (Icelandic for Freeze) is an application designed to perform various spectral "freezing" and pitch-shifting functions on regions of digital audio. These regions can either be drawn in manually or generated automatically using the transient detection tool. Frysta offers two types of spectral freezing:
+
+### Magnitude Freeze
+
+This freeze type captures the loudness profile (spectral magnitude) from the very beginning of the selected region and holds it constant throughout. It continuously calculates and updates the phase information for each frequency component, aiming for a smoother sonic result while incorporating the desired pitch shift directly during the sound's reconstruction. The resulting texture is often more smeared or sustained, based entirely on that initial sonic snapshot.
+
+### Frame Repeat
+
+This method grabs a complete spectral snapshot (both magnitude and phase) of a single, tiny slice of time near the region's start and simply loops this exact snapshot repeatedly to fill the region's duration. The pitch shift is then applied to this block of looped audio after it has been reconstructed. This often produces a more static, potentially buzzy or granular sound, as the exact spectral characteristics of that one instant are frozen and repeated without phase evolution.
+
+![Frysta](/assets/images/frysta.png)
+
+Pitch transposition of the selected regions can be applied globally, across all regions, or on a per-region basis. The **pitch function** feature allows you to apply dynamic pitch transposition effects using expressions (Python lambda functions). The allows for pitch ramps, vibrato/LFO effects, complex curves, stepped changes, etc.
+
+## CDP Integration
+
+Alongside its own spectral freezing algorithm, Frysta integrates CDP's [Focus Freeze](https://www.composersdesktop.com/docs/html/cfocus.htm) tool. The "CDP Export" button passes audio to CDP's *PVOC analysis* application, then to the *focus* tool, with an associated datafile specifying the start/end points of the selected regions, then back to *PVOC* for resynthesis.

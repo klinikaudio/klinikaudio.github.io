@@ -3,3 +3,6 @@ description: A production, development and research blog focusing on experimenta
 show_downloads: true
 google_analytics:
 theme: jekyll-theme-hacker
+
+baseurl: "/klinik.github.io"
+url: "https://klinikaudio.github.io" # Also good practice to set the production URL

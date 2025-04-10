@@ -7,7 +7,7 @@ author: "Benny Woo"
 tags: "sample, live coding"
 ---
 
-Klok is a cross-platform application developed around 2016 that combines a Euclidean rhythm based sequencer and a live coding environment designed for real-time sample transformation and effects processing. At the core of Klok is a meta sequencer that sequences ‘snapshots’ (groups of 4 Euclidean rhythm sequences). These snapshots have their own tempo and the meta sequencer its own global tempo.
+Klok is a cross-platform application developed around 2016 that combines a [Euclidean rhythm based sequencer](https://en.wikipedia.org/wiki/Euclidean_rhythm) and a live coding environment designed for real-time sample transformation and effects processing. At the core of Klok is a meta sequencer that sequences ‘snapshots’ (groups of 4 Euclidean rhythm sequences). These snapshots have their own tempo and the meta sequencer its own global tempo.
 
 Each of these 4 Euclidean sequences controls a channel and each of these channels has an associated audio sample connected to it (which can be hot-swapped programmatically whenever a block of code is called from a snapshot by the meta sequencer).
 

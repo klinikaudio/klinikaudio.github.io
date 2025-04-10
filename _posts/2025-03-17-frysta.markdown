@@ -23,4 +23,4 @@ Pitch transposition of the selected regions can be applied globally, across all 
 
 ## CDP Integration
 
-Alongside its own spectral freezing algorithm, Frysta integrates CDP's [Focus Freeze](https://www.composersdesktop.com/docs/html/cfocus.htm) tool. The "CDP Export" button passes audio to CDP's *PVOC analysis* application, then to the *focus* tool, with an associated datafile specifying the start/end points of the selected regions, then back to *PVOC* for resynthesis.
+Alongside its own spectral freezing algorithm, Frysta integrates CDP's [Focus Freeze](https://www.composersdesktop.com/docs/html/cfocus.htm) tool. The "CDP Export" button passes audio to CDP's [*PVOC analysis*](https://www.composersdesktop.com/docs/html/cpvocman.htm#USAGEANAL) application, then to the *focus* tool, with an associated datafile specifying the start/end points of the selected regions, then back to *PVOC* for resynthesis.

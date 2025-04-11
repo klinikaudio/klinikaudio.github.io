@@ -1,0 +1,20 @@
+---
+layout: post
+title:  "Transforming Spectrogram & Phase Data with Image Transformation Tools"
+date:   2025-04-11 00:00:00 +0000
+categories: applications, spectral
+author: "Benny Woo"
+tags: "spectral, imaging"
+---
+
+This is a work in progress application for encoding digital audio files as time-frequency spectrogram and quantised (8-bit) phase data images. These images can be transformed in a number of ways before being reconstructed as audio.
+
+![Spectral transformations]({{ '/assets/images/klinikspecwav.png' | relative_url }})
+
+This approach allows for a wide variety of exotic frequency shifting and time stretching transformations. The encoding of phase data as an alternative to phase estimation techniques at the reconstruction stage allows for near perfect reconstructions.
+
+![Spectrogram and phase encoding]({{ '/assets/images/spectrophase.png' | relative_url }})
+
+Images can be processed outside of the application and reimported for reconstruction or processed internally using [GMIC](https://gmic.eu/reference/list_of_commands.html#top) processing chains.
+
+As spectrogram and phase images are encoded independently, spectrogram/phase images derived from different sources can be combined (images of different sizes will be automatically resized).

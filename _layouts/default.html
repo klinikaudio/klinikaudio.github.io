@@ -26,9 +26,7 @@
         {{ content }}
       </section>
     </div>
-<!-- ... inside _layouts/default.html, before </body> ... -->
-<!-- ... inside _layouts/default.html, before </body> ... -->
-<!-- ... inside _layouts/default.html, before </body> ... -->
+
 {% comment %} Only include flicker script on pages OTHER than the root index {% endcomment %}
 {% unless page.url == '/' %}
 <!-- Start Flicker Script -->
@@ -51,16 +49,55 @@
       let flickerCounter = 0;
       let mainCheckIntervalId = null;
       let effectStopped = false;
+      let hasRun = false; // Prevent running multiple times if DOM changes trigger event again
 
       // Helper function to get a random character
       function getRandomChar() {
           return chars[Math.floor(Math.random() * chars.length)];
       }
 
-      // Function to wrap characters in suitable paragraphs
-      function wrapCharacters() {
-          console.log("Flicker script: wrapCharacters() called.");
-          const paragraphElements = document.querySelectorAll('#main_content p');
+      // NEW: Function to walk the DOM and wrap text nodes
+      function wrapCharactersInNode(parentNode) {
+          const childNodes = Array.from(parentNode.childNodes); // Create static array
+
+          childNodes.forEach(node => {
+              if (node.nodeType === Node.TEXT_NODE) {
+                  const text = node.nodeValue;
+                  if (text && text.trim() !== '') {
+                      const fragment = document.createDocumentFragment();
+                      for (let i = 0; i < text.length; i++) {
+                          if (text[i].trim() !== '') {
+                              const span = document.createElement('span');
+                              span.id = `flicker-span-${flickerCounter++}`;
+                              span.dataset.original = encodeURIComponent(text[i]);
+                              span.textContent = text[i];
+                              fragment.appendChild(span);
+                              letterSpans.push(span); // Collect the span
+                          } else {
+                              // Append whitespace directly as a text node
+                              fragment.appendChild(document.createTextNode(text[i]));
+                          }
+                      }
+                      // Replace the original text node with the fragment
+                      try {
+                          parentNode.replaceChild(fragment, node);
+                      } catch(e) {
+                          console.error("Flicker script: Error replacing text node:", e, "Node:", node, "Parent:", parentNode);
+                      }
+                  }
+              } else if (node.nodeType === Node.ELEMENT_NODE) {
+                  // Recursively process child elements, avoiding script tags
+                  if (node.tagName.toLowerCase() !== 'script' && node.tagName.toLowerCase() !== 'style') {
+                     wrapCharactersInNode(node); // Recurse
+                  }
+              }
+          });
+      }
+
+      // MODIFIED: Function to initiate wrapping
+      function wrapAllTargetCharacters() {
+          console.log("Flicker script: wrapAllTargetCharacters() called.");
+          const paragraphElements = document.querySelectorAll('#main_content p'); // Select paragraphs within #main_content
           console.log(`Flicker script: Found ${paragraphElements ? paragraphElements.length : 0} paragraph element(s) within #main_content.`);
 
           if (!paragraphElements || paragraphElements.length === 0) {
@@ -71,72 +108,32 @@
           paragraphElements.forEach((pElement, index) => {
               console.log(`\nFlicker script: Processing paragraph ${index + 1}.`);
 
-              // Check for images
+              // Skip paragraphs containing images (optional, keep if desired)
               const containsImage = pElement.querySelector('img');
               if (containsImage) {
                   console.log(`Flicker script: Paragraph ${index + 1} contains an image. Skipping.`);
-                  return; // Skip this paragraph
-              } else {
-                   console.log(`Flicker script: Paragraph ${index + 1} does NOT contain an image.`);
+                  return;
               }
 
-              // Avoid re-wrapping
-              if (pElement.dataset.flickerWrapped) {
-                   console.log(`Flicker script: Paragraph ${index + 1} already wrapped. Skipping.`);
+              // Avoid re-wrapping (simple check)
+              if (pElement.dataset.flickerProcessed) {
+                   console.log(`Flicker script: Paragraph ${index + 1} already processed. Skipping.`);
                    return;
               }
+              pElement.dataset.flickerProcessed = 'true'; // Mark as processed
 
-              const text = pElement.textContent;
-              console.log(`Flicker script: Paragraph ${index + 1} textContent length: ${text ? text.length : 'null'}`);
-
-              // Ensure there's text content to process
-              if (!text || text.trim() === '') {
-                  console.log(`Flicker script: Paragraph ${index + 1} has no significant text content. Skipping text wrapping.`);
-                  return; // Skip paragraphs with no text
-              }
-
-              let newHTML = '';
-              for (let i = 0; i < text.length; i++) {
-                  // Wrap ONLY non-whitespace characters
-                  if (text[i].trim() !== '') {
-                      const spanId = `flicker-span-${flickerCounter++}`;
-                      const originalChar = encodeURIComponent(text[i]);
-                      newHTML += `<span id="${spanId}" data-original="${originalChar}">${text[i]}</span>`;
-                  } else {
-                      newHTML += text[i]; // Add whitespace directly
-                  }
-              }
-
-              console.log(`Flicker script: Generated newHTML for paragraph ${index + 1}. Length: ${newHTML.length}`);
-              try {
-                   pElement.innerHTML = newHTML;
-                   pElement.dataset.flickerWrapped = 'true'; // Mark as wrapped *after* successful replacement
-                   console.log(`Flicker script: Successfully updated innerHTML for paragraph ${index + 1}.`);
-
-                   // Collect spans from THIS paragraph
-                   const spansInParagraph = pElement.querySelectorAll('span');
-                   console.log(`Flicker script: Found ${spansInParagraph.length} spans in paragraph ${index + 1}.`);
-                   spansInParagraph.forEach(span => {
-                       letterSpans.push(span);
-                   });
-              } catch (error) {
-                   console.error(`Flicker script: Error setting innerHTML for paragraph ${index + 1}:`, error);
-                   console.error("Generated HTML was:", newHTML);
-              }
+              wrapCharactersInNode(pElement); // Start the recursive wrapping
 
           }); // End of paragraph loop
 
-          console.log(`\nFlicker script: wrapCharacters() finished. Total spans collected: ${letterSpans.length}`);
+          console.log(`\nFlicker script: wrapAllTargetCharacters() finished. Total spans collected: ${letterSpans.length}`);
       }
 
-      // Function to make a single letter flicker
-      function flickerLetter(spanElement) {
-          // --- Log Entry ---
-          console.log(`Flicker script: flickerLetter called for span #${spanElement.id}`);
-          // --- End Log ---
 
-          if (effectStopped || spanElement.classList.contains('is-flickering')) {
-              console.log(`Flicker script: flickerLetter aborted (effect stopped or already flickering) for span #${spanElement.id}`);
+      // Function to make a single letter flicker (mostly unchanged)
+      function flickerLetter(spanElement) {
+          if (effectStopped || !spanElement || !spanElement.parentNode || spanElement.classList.contains('is-flickering')) {
+              // console.log(`Flicker script: flickerLetter aborted for span #${spanElement?.id}`);
               return;
           }
 
@@ -144,27 +141,24 @@
           const spanId = spanElement.id;
           const flickerDuration = Math.random() * (FLICKER_DURATION_MAX - FLICKER_DURATION_MIN) + FLICKER_DURATION_MIN;
 
-          // --- Log Start Details ---
-          console.log(`Flicker script: Starting flicker on #${spanId} for ${flickerDuration.toFixed(0)}ms. Original: '${originalChar}'`);
-           // --- End Log ---
-
+          // console.log(`Flicker script: Starting flicker on #${spanId} for ${flickerDuration.toFixed(0)}ms. Original: '${originalChar}'`);
           spanElement.classList.add('is-flickering');
 
           let letterChangeIntervalId = setInterval(() => {
-              // console.log(`Flicker script: Changing char for #${spanId}`); // Optional: uncomment for EXTREMELY verbose logging
               if (effectStopped || !document.getElementById(spanId)) {
                    clearInterval(letterChangeIntervalId);
                    delete activeFlickerIntervals[spanId];
                    const stillExistsSpan = document.getElementById(spanId);
                    if (!effectStopped && stillExistsSpan) {
-                       stillExistsSpan.textContent = originalChar;
+                       stillExistsSpan.textContent = originalChar; // Restore text content
                        stillExistsSpan.classList.remove('is-flickering');
                    }
                    return;
               }
-               if(document.getElementById(spanId)) {
-                  document.getElementById(spanId).textContent = getRandomChar();
-               } else {
+               const currentSpan = document.getElementById(spanId);
+               if(currentSpan) {
+                  currentSpan.textContent = getRandomChar();
+               } else { // Span removed from DOM during flicker
                    clearInterval(letterChangeIntervalId);
                    delete activeFlickerIntervals[spanId];
                }
@@ -174,115 +168,158 @@
 
           // Timeout to stop this specific flicker
           setTimeout(() => {
-              // --- Log Timeout Reached ---
-              console.log(`Flicker script: Flicker timeout reached for span #${spanId}. Restoring original.`);
-               // --- End Log ---
-
+              // console.log(`Flicker script: Flicker timeout reached for span #${spanId}. Restoring original.`);
               if (activeFlickerIntervals[spanId] === letterChangeIntervalId) {
                    clearInterval(letterChangeIntervalId);
                    delete activeFlickerIntervals[spanId];
                    const stillExistsSpan = document.getElementById(spanId);
                    if (!effectStopped && stillExistsSpan) {
-                       stillExistsSpan.textContent = originalChar;
+                       stillExistsSpan.textContent = originalChar; // Restore text content
                        stillExistsSpan.classList.remove('is-flickering');
-                       // --- Log Successful Restoration ---
-                       console.log(`Flicker script: Restored original character for span #${spanId}`);
-                        // --- End Log ---
+                       // console.log(`Flicker script: Restored original character for span #${spanId}`);
                    } else {
-                      console.log(`Flicker script: Did not restore span #${spanId} (effect stopped or span removed).`);
+                      // console.log(`Flicker script: Did not restore span #${spanId} (effect stopped or span removed).`);
                    }
               } else {
-                 console.log(`Flicker script: Flicker timeout for span #${spanId} ignored (interval already cleared elsewhere).`);
+                 // console.log(`Flicker script: Flicker timeout for span #${spanId} ignored (interval already cleared elsewhere).`);
               }
           }, flickerDuration);
       }
 
-      // Function to stop ALL flickering globally
+      // NEW: Function to remove spans and restore original text nodes
+      function unwrapCharacters() {
+            console.log("Flicker script: Starting unwrapCharacters...");
+            let unwrappedCount = 0;
+            const spansToUnwrap = Array.from(document.querySelectorAll('span[id^="flicker-span-"]')); // Get current spans
+            console.log(`Flicker script: Found ${spansToUnwrap.length} spans to potentially unwrap.`);
+
+            spansToUnwrap.forEach(span => {
+                if (span && span.parentNode && span.dataset.original) {
+                    try {
+                        const originalChar = decodeURIComponent(span.dataset.original);
+                        const textNode = document.createTextNode(originalChar);
+                        span.parentNode.replaceChild(textNode, span);
+                        unwrappedCount++;
+                    } catch (e) {
+                        console.error("Flicker script: Error unwrapping span:", span.id, e);
+                    }
+                } else {
+                   // console.warn("Flicker script: Skipping unwrap for invalid/detached span:", span?.id);
+                }
+            });
+
+            console.log(`Flicker script: Unwrapped ${unwrappedCount} spans.`);
+
+            // Optional: Normalize parent elements to merge adjacent text nodes
+            const processedParents = new Set();
+            spansToUnwrap.forEach(span => { // Use original list concept, even though spans are gone
+                // Need to track original parents or re-query paragraphs
+            });
+             document.querySelectorAll('#main_content p[data-flicker-processed="true"]').forEach(p => {
+                 p.normalize(); // Merges adjacent text nodes
+                 // console.log("Normalized paragraph:", p);
+                 delete p.dataset.flickerProcessed; // Clean up marker
+             });
+             console.log("Flicker script: Text node normalization complete.");
+
+            letterSpans = []; // Clear the array
+      }
+
+
+      // MODIFIED: Function to stop ALL flickering globally
       function stopAllFlickering() {
-          // --- Log Global Stop ---
           console.log(`%c--- Stopping all flickering after ${GLOBAL_STOP_TIME}ms ---`, 'color: orange; font-weight: bold;');
-           // --- End Log ---
           effectStopped = true;
 
           if (mainCheckIntervalId) {
               clearInterval(mainCheckIntervalId);
-               // --- Log Interval Stop ---
                console.log("Flicker script: Main check interval stopped by global timeout.");
-                // --- End Log ---
           }
 
-          // Stop all active individual flickers
+          // Stop all active individual flickers first (restore text content temporarily)
           for (const spanId in activeFlickerIntervals) {
               clearInterval(activeFlickerIntervals[spanId]);
               const span = document.getElementById(spanId);
                if (span && span.dataset.original) {
-                   span.textContent = decodeURIComponent(span.dataset.original);
-                   span.classList.remove('is-flickering');
+                   try {
+                        span.textContent = decodeURIComponent(span.dataset.original);
+                        span.classList.remove('is-flickering');
+                   } catch (e) { console.error("Error restoring text before unwrap:", e); }
                }
           }
           activeFlickerIntervals = {};
-          console.log("Flicker script: Cleared active individual flicker intervals during global stop.");
+          console.log("Flicker script: Cleared active individual flicker intervals.");
 
-
-          // Final pass to restore ALL characters just in case
-          letterSpans.forEach(span => {
-              if (span && span.dataset.original && document.body.contains(span)) { // Check if span still exists
-                  span.textContent = decodeURIComponent(span.dataset.original);
-                  span.classList.remove('is-flickering');
-              }
-          });
-          console.log("Flicker script: Final restoration pass complete.");
+          // NOW, unwrap the characters to restore DOM structure
+          unwrapCharacters();
       }
 
 
       // --- Initialization ---
-      try {
-           console.log("Flicker script: Starting initialization...");
-           wrapCharacters();
+      function initializeFlicker() {
+        if (hasRun) {
+            console.log("Flicker script: Initialization already ran. Skipping.");
+            return;
+        }
+        hasRun = true; // Set flag
 
-           if (letterSpans.length > 0) {
-               console.log("Flicker script: Spans found. Setting up main interval and global stop timer.");
+        try {
+             console.log("Flicker script: Starting initialization...");
+             letterSpans = []; // Reset spans array
+             wrapAllTargetCharacters(); // Use the new wrapping function
 
-               // Start the main loop to potentially trigger flickers
-               mainCheckIntervalId = setInterval(() => {
-                   // console.log("Flicker script: Main interval check running..."); // Optional: uncomment for VERY verbose logging
-                   if (effectStopped) return;
-                   let flickerAttempts = 0; // Count how many flickers we try this interval
+             if (letterSpans.length > 0) {
+                 console.log("Flicker script: Spans created. Setting up main interval and global stop timer.");
 
-                   letterSpans.forEach(span => {
-                        // Ensure span is valid and in the document
-                       if (span && document.body.contains(span) && !span.classList.contains('is-flickering')) {
-                           if (Math.random() < FLICKER_CHANCE) {
-                                // --- Log Flicker Attempt ---
-                               console.log(`Flicker script: Attempting to flicker span #${span.id}`);
-                               // --- End Log ---
-                               flickerLetter(span);
-                               flickerAttempts++;
-                           }
-                        }
-                   });
-                    // if (flickerAttempts > 0) console.log(`Flicker script: Initiated ${flickerAttempts} flickers this interval.`); // Optional: uncomment for verbose logging
+                 // Start the main loop to potentially trigger flickers
+                 mainCheckIntervalId = setInterval(() => {
+                     if (effectStopped) {
+                         clearInterval(mainCheckIntervalId); // Stop checking once effect is globally stopped
+                         return;
+                     }
+                     let flickerAttempts = 0;
 
-               }, MAIN_CHECK_INTERVAL);
+                     // Use the collected letterSpans array
+                     letterSpans.forEach(span => {
+                         // Ensure span is valid and still in the document
+                         if (span && span.parentNode && document.body.contains(span) && !span.classList.contains('is-flickering')) {
+                             if (Math.random() < FLICKER_CHANCE) {
+                                 // console.log(`Flicker script: Attempting to flicker span #${span.id}`);
+                                 flickerLetter(span);
+                                 flickerAttempts++;
+                             }
+                          }
+                     });
+                      // if (flickerAttempts > 0) console.log(`Flicker script: Initiated ${flickerAttempts} flickers this interval.`);
+
+                 }, MAIN_CHECK_INTERVAL);
 
 
-               // Schedule the global stop
-               setTimeout(stopAllFlickering, GLOBAL_STOP_TIME);
-               console.log("Flicker script: Timers initialized.");
+                 // Schedule the global stop and unwrap
+                 setTimeout(stopAllFlickering, GLOBAL_STOP_TIME);
+                 console.log("Flicker script: Timers initialized.");
 
-           } else {
-                console.warn("Flicker script: No spans collected. Flicker effect will not run.");
-           }
-      } catch(initError) {
-           console.error("Flicker script: CRITICAL ERROR during initialization:", initError);
+             } else {
+                  console.warn("Flicker script: No spans created/collected. Flicker effect will not run.");
+             }
+        } catch(initError) {
+             console.error("Flicker script: CRITICAL ERROR during initialization:", initError);
+             effectStopped = true; // Prevent further processing on error
+        }
       }
+
+      // Run initialization
+      initializeFlicker();
+
+      // Optional: Handle dynamic content loading if necessary
+      // If content within #main_content can change after initial load,
+      // you might need a MutationObserver to re-run wrapAllTargetCharacters
+      // or adjust the logic. For a standard Jekyll build, this is likely not needed.
 
   });
 </script>
 {% endunless %}
 <!-- End Flicker Script -->
-<!-- End Flicker Script -->
-<!-- End Flicker Script -->
-<!-- End Flicker Script -->
+
   </body>
 </html>

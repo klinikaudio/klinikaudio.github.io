@@ -5,20 +5,42 @@
 
 /* Flickering Text Effect Styles */
 
-/* Target spans inside p tags which are inside #main_content */
-#main_content p span {
-    /* display: inline; */ /* Default, no need to specify */
-    /* min-width: 0; */   /* Remove min-width if it was present */
-    /* Basic styling for selection prevention */
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+/* Target spans created by the script inside p tags within #main_content */
+/* REMOVED user-select: none; from here */
+#main_content p span[id^="flicker-span-"] {
+    /* display: inline; */ /* Default, usually not needed */
+    /* Optional: Add styles ONLY for the base span if needed */
 }
 
-/* Target flickering spans inside p tags which are inside #main_content */
-#main_content p span.is-flickering {
-     /* Optional: Style the flicker */
+/* Target ONLY the flickering spans */
+#main_content p span[id^="flicker-span-"].is-flickering {
+     /* Optional: Style the flicker itself */
      /* color: #0f0; */
      /* text-shadow: 0 0 3px #0f0; */
+
+     /* Optional: Prevent selection ONLY while actively flickering */
+     /* user-select: none;
+     -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none; */
+}
+
+/* Add styles for your specific post layout if needed */
+.post-content {
+    /* Styles specific to the content area in post.html */
+}
+
+/* Ensure links within #main_content are styled correctly */
+#main_content a,
+#main_content a:visited {
+  /* Your default link styles */
+  color: #63c0f5; /* Example */
+  text-decoration: underline;
+}
+
+#main_content a:hover,
+#main_content a:active {
+  /* Your link hover styles */
+   color: #E972E2; /* Example */
+   text-decoration: none;
 }

@@ -1,0 +1,24 @@
+---
+---
+
+@import 'jekyll-theme-hacker';
+
+/* Flickering Text Effect Styles */
+
+/* Target spans inside p tags which are inside #main_content */
+#main_content p span {
+    /* display: inline; */ /* Default, no need to specify */
+    /* min-width: 0; */   /* Remove min-width if it was present */
+    /* Basic styling for selection prevention */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Target flickering spans inside p tags which are inside #main_content */
+#main_content p span.is-flickering {
+     /* Optional: Style the flicker */
+     /* color: #0f0; */
+     /* text-shadow: 0 0 3px #0f0; */
+}

@@ -16,6 +16,6 @@ layout: default
 
 ## Social Media:
 
-[instagram.com/benny__woo] (https://www.instagram.com/benny__woo)
+[instagram.com/benny__woo](https://www.instagram.com/benny__woo)
 
 [@bennywoo.bsky.social](https://bsky.app/profile/bennywoo.bsky.social)

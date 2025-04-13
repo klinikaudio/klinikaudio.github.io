@@ -2,6 +2,10 @@
 layout: default
 ---
 
+<div class="waveform-container">
+  <canvas id="waveform-canvas"></canvas>
+</div>
+
 This development blog details the production of Klinik, a cross-platform suite of audio synthesis and effects tools, with occasional detours into experimental production techniques and reviews of relevant research papers. Music can be found [here](/trax).
 
 # Recent Posts

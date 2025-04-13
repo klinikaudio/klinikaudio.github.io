@@ -321,5 +321,123 @@
 {% endunless %}
 <!-- End Flicker Script -->
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('waveform-canvas');
+      if (!canvas) {
+        console.error("Waveform canvas element not found!");
+        return;
+      }
+      const ctx = canvas.getContext('2d');
+    
+      // --- Configuration ---
+      const waveColor = "#E972E2";
+      const waveHeight = 40; // Corresponds to canvas height
+      const lineWidth = 1.5;   // Thickness of the line (can be thinner for chaos)
+    
+      // Wave 1 Parameters (Base wave)
+      const amplitude1 = 10;  // Max height deviation for wave 1
+      const frequency1 = 0.03; // How many waves across the canvas width
+      const speed1 = 0.05;    // How fast wave 1 animates
+    
+      // Wave 2 Parameters (Adds complexity)
+      const amplitude2 = 5;   // Max height deviation for wave 2
+      const frequency2 = 0.08; // Different frequency for complexity
+      const speed2 = -0.03;   // Different speed (can be negative for opposite direction)
+    
+      // Chaos/Noise Parameters
+      const noiseAmount = 3; // Max random deviation (+/- noiseAmount / 2)
+      const noiseSpeed = 0.1; // How fast the noise pattern appears to change
+    
+      // Ensure total amplitude doesn't exceed bounds easily
+      const totalMaxAmplitude = amplitude1 + amplitude2 + (noiseAmount / 2);
+      if (totalMaxAmplitude > waveHeight / 2 - lineWidth) {
+          console.warn("Potential amplitude exceeds canvas height. Consider reducing amplitudes or noiseAmount.");
+      }
+      // ---------------------
+    
+      let phase1 = 0;
+      let phase2 = Math.PI; // Start second wave at a different phase
+      let noisePhase = 0;
+      let canvasWidth = canvas.clientWidth; // Initial width
+    
+      // Function to resize canvas drawing buffer to match displayed size
+      function resizeCanvas() {
+        canvasWidth = canvas.clientWidth;
+        canvas.width = canvasWidth;
+        canvas.height = waveHeight;
+      }
+    
+      // Debounce function to limit resize calls
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+    
+      // Animation loop
+      function draw() {
+        // Clear the previous frame
+        ctx.clearRect(0, 0, canvasWidth, waveHeight);
+    
+        // Set drawing properties
+        ctx.strokeStyle = waveColor;
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+    
+        const centerY = waveHeight / 2;
+    
+        // Move to the starting point (calculate y for x=0)
+        const startY = centerY +
+                       amplitude1 * Math.sin(phase1) +
+                       amplitude2 * Math.sin(phase2) +
+                       (Math.random() - 0.5) * noiseAmount; // Add noise at start too
+        ctx.moveTo(0, Math.max(lineWidth / 2, Math.min(waveHeight - lineWidth / 2, startY))); // Clamp start point
+    
+        // Draw the combined, chaotic wave
+        for (let x = 1; x < canvasWidth; x++) { // Start from 1 since we already moved to 0
+          // Calculate y using combined sine waves
+          let y = centerY +
+                  amplitude1 * Math.sin(x * frequency1 + phase1) +
+                  amplitude2 * Math.sin(x * frequency2 + phase2);
+    
+          // Add some noise - make noise vary with x and time for more organic feel
+          // Using sine on noisePhase+x makes the noise less spiky than pure Math.random() per pixel
+          // You can revert to (Math.random() - 0.5) * noiseAmount for pure spiky noise
+          const noise = (Math.sin(x * 0.1 + noisePhase) + Math.sin(x * 0.23 + noisePhase * 0.5)) / 2; // Smoother noise
+          y += noise * (noiseAmount / 2);
+          // Alternative spikier noise: y += (Math.random() - 0.5) * noiseAmount;
+    
+          // Clamp y-coordinate to stay within canvas bounds (important with noise)
+          y = Math.max(lineWidth / 2, Math.min(waveHeight - lineWidth / 2, y));
+    
+          ctx.lineTo(x, y);
+        }
+    
+        // Render the line
+        ctx.stroke();
+    
+        // Update the phases for the next frame
+        phase1 += speed1;
+        phase2 += speed2;
+        noisePhase += noiseSpeed;
+    
+        // Request the next animation frame
+        requestAnimationFrame(draw);
+      }
+    
+      // --- Initialization ---
+      resizeCanvas();
+      window.addEventListener('resize', debounce(resizeCanvas, 100));
+      draw();
+    });
+    </script>
+
   </body>
 </html>

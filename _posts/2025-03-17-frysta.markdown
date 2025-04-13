@@ -19,7 +19,7 @@ This method grabs a complete spectral snapshot (both magnitude and phase) of a s
 
 ![Frysta]({{ '/assets/images/frysta.png' | relative_url }})
 
-Pitch transposition of the selected regions can be applied globally, across all regions, or on a per-region basis. The **pitch function** feature allows you to apply dynamic pitch transposition effects using expressions (Python lambda functions). The allows for pitch ramps, vibrato/LFO effects, complex curves, stepped changes, etc.
+Pitch transposition of the selected regions can be applied globally, across all regions, or on a per-region basis. The **pitch function** feature allows you to apply dynamic pitch transposition effects using expressions (Python lambda functions). This allows for pitch ramps, vibrato/LFO effects, complex curves, stepped changes, etc.
 
 ## CDP Integration
 

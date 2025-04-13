@@ -27,7 +27,8 @@ The second, a tesseract module, displays the real-time 2D screen coordinates for
   Your browser does not support the video tag.
 </video>
 
-### Genetic Approaches to Curve Fitting
+
+## Genetic Approaches to Curve Fitting
 
 Finally, this application transforms photos of hand-drawn whiteboard curves into mathematical functions. The aim is to provide a quick workflow: sketch a shape, capture it with a photo, and generate an approximate function that can then be used to produce control voltages via a DAC, ultimately for driving modular synthesizers or similar gear. The application offers two approaches:
 

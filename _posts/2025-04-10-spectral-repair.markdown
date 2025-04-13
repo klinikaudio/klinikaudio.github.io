@@ -17,7 +17,7 @@ Well, firstly we’ll want some way to make precise selections. In this applicat
 
 While we can then play or export the isolated portion of audio (useful in itself for precision filtering), we can also "heal" it, removing and filling the region using a texture resynthesis algorithm.
 
-<video width="100%" loop autoplay muted playsinline>
+<video width="70%" loop autoplay muted playsinline>
   <source src="{{ '/assets/videos/spectrawand.mp4' | relative_url }}" type="video/mp4">
   Your browser does not support the video tag.
 </video>

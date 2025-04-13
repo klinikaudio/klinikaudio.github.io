@@ -33,4 +33,4 @@ Unlike CAs with discrete states (e.g., alive/dead, black/white), the cells in th
 The kernel values (the weights for the convolution).
 The choice and shape of the activation function.
 
-Crucially, the The application analyses the overall state of the grid – specifically its mean (average value) and variance (how spread out the values are) – and uses these metrics to continuously control parameters of a built-in sound synthesiser offering a variety of synthesis types (FM, granular, additive, subtractive and wavetable).
+Crucially, the application analyses the overall state of the grid – specifically its mean (average value) and variance (how spread out the values are) – and uses these metrics to continuously control parameters of a built-in sound synthesiser offering a variety of synthesis types (FM, granular, additive, subtractive and wavetable).

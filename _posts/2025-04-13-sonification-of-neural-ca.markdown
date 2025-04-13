@@ -7,7 +7,7 @@ author: "Benny Woo"
 tags: "applications, cellular automata"
 ---
 
-This app simulates a Neural Cellular Automaton (NCA), a grid of cells where each cell's state updates based on its neighbors, processed through a filter kernel and an activation function. The influence of the neighborhood is in this NCA is calculated using a convolution with a kernel (a small, 3x3 matrix of weights). The convolution essentially computes a weighted sum of the cell's neighbors (including itself, depending on the kernel center value). This is analogous to the input calculation in a neuron or a convolutional layer in a deep learning model.
+This app simulates a Neural Cellular Automaton (NCA), a grid of cells where each cell's state updates based on its neighbours, processed through a filter kernel and an activation function. The influence of the neighbourhood is in this NCA is calculated using a convolution with a kernel (a small, 3x3 matrix of weights). The convolution essentially computes a weighted sum of the cell's neighbours (including itself, depending on the kernel center value). This is analogous to the input calculation in a neuron or a convolutional layer in a deep learning model.
 
 <video width="80%" loop autoplay muted playsinline>
   <source src="{{ '/assets/videos/neural.mp4' | relative_url }}" type="video/mp4">

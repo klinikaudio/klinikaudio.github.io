@@ -30,7 +30,8 @@ The result of the convolution (the weighted sum) is then passed through a non-li
 
 Unlike CAs with discrete states (e.g., alive/dead, black/white), the cells in this NCA hold floating-point values. This allows for smoother transitions and more nuanced patterns. The behavior of this NCA is heavily determined by two main tunable components:
 
-The kernel values (the weights for the convolution).
-The choice and shape of the activation function.
+* The kernel values (the weights for the convolution).
+
+* The choice and shape of the activation function.
 
 Crucially, the application analyses the overall state of the grid – specifically its mean (average value) and variance (how spread out the values are) – and uses these metrics to continuously control parameters of a built-in sound synthesiser offering a variety of synthesis types (FM, granular, additive, subtractive and wavetable).
